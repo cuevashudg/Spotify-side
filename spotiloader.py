@@ -71,23 +71,21 @@ def write_metadata(track, features=None):
     
     Args:
         track (dict): Current playback object from Spotify API
-        features (dict, optional): Audio features object containing BPM data
     """
     # Extract song information
     name = track["item"]["name"]
     artist = track["item"]["artists"][0]["name"]
     duration_sec = track["item"]["duration_ms"] // 1000
     duration_formatted = f"{duration_sec // 60}:{duration_sec % 60:02d}"
-    bpm = features["tempo"] if features else "N/A"
     timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
 
     # Write current song (overwrites previous)
     with open("current_song.txt", "w", encoding="utf-8") as f:
-        f.write(f"Song: {name}\nArtist: {artist}\nDuration: {duration_formatted}\nBPM: {bpm}\n")
+        f.write(f"Song: {name}\nArtist: {artist}\nDuration: {duration_formatted}\n")
 
     # Append to song history
     with open("song_history.txt", "a", encoding="utf-8") as f:
-        f.write(f"[{timestamp}] Song: {name} | Artist: {artist} | Duration: {duration_formatted} | BPM: {bpm}\n")
+        f.write(f"[{timestamp}] Song: {name} | Artist: {artist} | Duration: {duration_formatted}\n")
 
 # ==============================================================================
 # MAIN MONITORING LOOP
@@ -118,13 +116,7 @@ def main():
                 if current and current["is_playing"] and current["item"]:
                     track_id = current["item"]["id"]
                     if track_id != last_track_id:
-                        try:
-                            features = sp.audio_features([track_id])[0]
-                        except Exception as e:
-                            print(f"Warning: Could not fetch audio features: {e}")
-                            features = None
-                        
-                        write_metadata(current, features)
+                        write_metadata(current)
                         last_track_id = track_id
                         print(f"Updated: {current['item']['name']} by {current['item']['artists'][0]['name']}")
             else:
