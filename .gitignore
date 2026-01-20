@@ -10,6 +10,7 @@
 # Output Files
 current_song.txt
 song_history.txt
+song_history.csv
 
 # Python
 __pycache__/

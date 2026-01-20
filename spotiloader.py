@@ -5,6 +5,7 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from dotenv import load_dotenv
 import webbrowser
+import csv
 
 # ==============================================================================
 # CONFIGURATION AND INITIALIZATION SECTION
@@ -75,7 +76,10 @@ def write_metadata(track, features=None):
     # Extract song information
     name = track["item"]["name"]
     artist = track["item"]["artists"][0]["name"]
-    duration_sec = track["item"]["duration_ms"] // 1000
+    album = track["item"]["album"]["name"]
+    track_id = track["item"]["id"]
+    duration_ms = track["item"]["duration_ms"]
+    duration_sec = duration_ms // 1000
     duration_formatted = f"{duration_sec // 60}:{duration_sec % 60:02d}"
     timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
 
@@ -83,9 +87,21 @@ def write_metadata(track, features=None):
     with open("current_song.txt", "w", encoding="utf-8") as f:
         f.write(f"Song: {name}\nArtist: {artist}\nDuration: {duration_formatted}\n")
 
-    # Append to song history
+    # Append to song history (text format)
     with open("song_history.txt", "a", encoding="utf-8") as f:
         f.write(f"[{timestamp}] Song: {name} | Artist: {artist} | Duration: {duration_formatted}\n")
+    
+    # Append to CSV file for MongoDB import
+    csv_file = "song_history.csv"
+    file_exists = os.path.exists(csv_file)
+    
+    with open(csv_file, "a", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        # Write header if file doesn't exist
+        if not file_exists:
+            writer.writerow(["timestamp", "song_name", "artist", "album", "track_id", "duration_ms", "duration_formatted"])
+        # Write song data
+        writer.writerow([timestamp, name, artist, album, track_id, duration_ms, duration_formatted])
 
 # ==============================================================================
 # MAIN MONITORING LOOP
