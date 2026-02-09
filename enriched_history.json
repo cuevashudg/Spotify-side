@@ -343,5 +343,35 @@
     "repeat_state": "off",
     "audio_features": null,
     "session_id": null
+  },
+  {
+    "timestamp": "2026-02-09T09:08:07.473669",
+    "track_id": "4lzo6zPM2paqyP8oBp3DOs",
+    "song_name": "7-3",
+    "artist": "Peso Pluma",
+    "album": "DINASTÍA",
+    "duration_ms": 189102,
+    "duration_formatted": "3:09",
+    "context_type": "playlist",
+    "context_uri": "spotify:playlist:37i9dQZF1DXb0COFso7q0D",
+    "shuffle_state": true,
+    "repeat_state": "off",
+    "audio_features": null,
+    "session_id": null
+  },
+  {
+    "timestamp": "2026-02-09T09:11:19.151938",
+    "track_id": "36T0zLipTSOXQrY8oFBAvT",
+    "song_name": "MI GATA",
+    "artist": "Junior H",
+    "album": "MI GATA",
+    "duration_ms": 222366,
+    "duration_formatted": "3:42",
+    "context_type": "playlist",
+    "context_uri": "spotify:playlist:37i9dQZF1DXb0COFso7q0D",
+    "shuffle_state": true,
+    "repeat_state": "off",
+    "audio_features": null,
+    "session_id": null
   }
 ]
