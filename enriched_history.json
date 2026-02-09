@@ -313,5 +313,35 @@
     "repeat_state": "off",
     "audio_features": null,
     "session_id": null
+  },
+  {
+    "timestamp": "2026-02-09T09:05:14.228027",
+    "track_id": "2Ina8OxEQ3knMzWFRz9imx",
+    "song_name": "Risk Takers",
+    "artist": "Herencia de Patrones",
+    "album": "El Mundo Es Tuyo (Inspired by Clika The Movie)",
+    "duration_ms": 155255,
+    "duration_formatted": "2:35",
+    "context_type": "playlist",
+    "context_uri": "spotify:playlist:37i9dQZF1DXb0COFso7q0D",
+    "shuffle_state": true,
+    "repeat_state": "off",
+    "audio_features": null,
+    "session_id": null
+  },
+  {
+    "timestamp": "2026-02-09T09:05:19.570546",
+    "track_id": "6ZdbHIohiiimLHC5ZSDWDb",
+    "song_name": "Cambio Mi Suerte",
+    "artist": "Herencia De Grandes",
+    "album": "Noches Sin Fin",
+    "duration_ms": 168229,
+    "duration_formatted": "2:48",
+    "context_type": "playlist",
+    "context_uri": "spotify:playlist:37i9dQZF1DXb0COFso7q0D",
+    "shuffle_state": true,
+    "repeat_state": "off",
+    "audio_features": null,
+    "session_id": null
   }
 ]
