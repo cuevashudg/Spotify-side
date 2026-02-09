@@ -1,7 +1,7 @@
 """
 Core data collection and enrichment modules for Spotify Behavioral Engine.
 """
-from .models import Track, AudioFeatures, ListeningSession, SkipEvent
+from .models import Track, AudioFeatures, SkipEvent
 from .features import (
     AudioFeaturesEnricher,
     fetch_audio_features_safe,
@@ -9,13 +9,11 @@ from .features import (
     get_vibe_emoji
 )
 from .collector import SpotifyCollector
-from .sessions import SessionDetector
 
 __all__ = [
     # Models
     "Track",
     "AudioFeatures",
-    "ListeningSession",
     "SkipEvent",
     # Features
     "AudioFeaturesEnricher",
@@ -24,6 +22,4 @@ __all__ = [
     "get_vibe_emoji",
     # Collector
     "SpotifyCollector",
-    # Sessions
-    "SessionDetector",
 ]

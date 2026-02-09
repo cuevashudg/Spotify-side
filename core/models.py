@@ -103,49 +103,6 @@ class Track(BaseModel):
         }
 
 
-class ListeningSession(BaseModel):
-    """
-    A continuous period of listening activity.
-    
-    Sessions are detected by:
-    - Gaps in playback > threshold (30 min default)
-    - Context switches (playlist changes)
-    - Manual session boundaries
-    """
-    session_id: str
-    start_time: datetime
-    end_time: Optional[datetime] = None
-    track_ids: List[str] = Field(default_factory=list)
-    
-    # Session-level aggregates
-    total_tracks: int = 0
-    total_duration_ms: int = 0
-    unique_artists: int = 0
-    
-    # Mood metrics (averaged across tracks)
-    avg_energy: Optional[float] = None
-    avg_valence: Optional[float] = None
-    avg_tempo: Optional[float] = None
-    
-    # Behavioral patterns
-    skip_count: int = 0  # Tracks played < 30 seconds
-    context_switches: int = 0
-    
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "session_id": "2026-01-20_15-01",
-                "start_time": "2026-01-20T15:01:07",
-                "end_time": "2026-01-20T17:23:15",
-                "total_tracks": 42,
-                "total_duration_ms": 8932116,
-                "avg_energy": 0.72,
-                "avg_valence": 0.58,
-                "skip_count": 3
-            }
-        }
-
-
 class SkipEvent(BaseModel):
     """
     A track that was skipped before completion.

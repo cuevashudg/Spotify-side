@@ -718,5 +718,20 @@
     "repeat_state": "off",
     "audio_features": null,
     "session_id": null
+  },
+  {
+    "timestamp": "2026-02-09T10:42:59.039134",
+    "track_id": "4mc8byHXW8rmZT5L5jwYG5",
+    "song_name": "Buenos Días",
+    "artist": "Eladio Carrion",
+    "album": "Buenos Días",
+    "duration_ms": 159360,
+    "duration_formatted": "2:39",
+    "context_type": "playlist",
+    "context_uri": "spotify:playlist:37i9dQZF1DX10zKzsJ2jva",
+    "shuffle_state": false,
+    "repeat_state": "off",
+    "audio_features": null,
+    "session_id": null
   }
 ]
