@@ -260,12 +260,13 @@ class ReplaySignal(BehaviorSignal):
         if replay_rate <= baseline_replay:
             return {}
         
-        # TUNED: Require longer session for comfort_seeking
-        # Short sessions (< 20 min) with replay = passive/casual, not comfort_seeking
-        # Medium sessions (20-60 min) with replay = comfort_seeking
+        # TUNED: Lowered minimum session duration from 20 to 10 min
+        # Allows more competitions between signals, generating more secondaries
+        # Short sessions (< 10 min) with replay = passive/casual, not comfort_seeking
+        # Medium sessions (10-60 min) with replay = comfort_seeking
         # Long sessions (60+ min) with replay = could be zoning out or comfort_seeking
         
-        if session.duration_minutes < 20:
+        if session.duration_minutes < 10:
             # Too short to diagnose comfort_seeking vs passive
             return {}
         
@@ -732,7 +733,9 @@ class BehaviorClassifier:
         
         # Enhance evidence to mention secondary behaviors if they're significant
         evidence = primary_evidence
-        if secondary_behaviors and secondary_behaviors[0][1] > 0.3:
+        # TUNED: Lowered threshold from 0.3 to 0.15 to increase secondary frequency
+        # Target: 40-60% of sessions show secondary behaviors
+        if secondary_behaviors and secondary_behaviors[0][1] > 0.15:
             secondary_str = ", ".join(
                 f"{name} ({score:.0%})" 
                 for name, score in secondary_behaviors[:1]
