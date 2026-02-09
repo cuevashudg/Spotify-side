@@ -1,0 +1,99 @@
+{
+  "timestamp": "2026-02-09T11:34:05.030614",
+  "total_sessions": 4,
+  "metrics": {
+    "total_sessions": 4,
+    "accuracy": 1.0,
+    "confidence": {
+      "values": [
+        0.5,
+        0.5,
+        0.8232876712328767,
+        0.808425925925926
+      ],
+      "mean": 0.6579283992897007,
+      "stdev": 0.18246091174606216,
+      "min": 0.5,
+      "max": 0.8232876712328767,
+      "distribution": "  50%: \u2588\u2588 (2)\n  80%: \u2588\u2588 (2)\n"
+    },
+    "secondary_behaviors": {
+      "frequency": 0.25,
+      "avg_count": 0.25
+    },
+    "state_distribution": {
+      "routine_driven": 2,
+      "comfort_seeking": 1,
+      "zoning_out": 1
+    },
+    "false_predictions": []
+  },
+  "analyses": [
+    {
+      "session_id": "session_2026-01-20T15:01:07",
+      "start_time": "2026-01-20T15:01:07",
+      "duration_minutes": 1.2333333333333334,
+      "track_count": 2,
+      "predicted_state": "routine_driven",
+      "predicted_confidence": 0.5,
+      "actual_state": null,
+      "match": true,
+      "notes": "",
+      "predicted_secondary": [],
+      "predicted_evidence": [
+        "Regular session length"
+      ]
+    },
+    {
+      "session_id": "session_2026-02-09T06:39:42",
+      "start_time": "2026-02-09T06:39:42",
+      "duration_minutes": 39.11666666666667,
+      "track_count": 15,
+      "predicted_state": "routine_driven",
+      "predicted_confidence": 0.5,
+      "actual_state": null,
+      "match": true,
+      "notes": "",
+      "predicted_secondary": [],
+      "predicted_evidence": [
+        "Regular session length"
+      ]
+    },
+    {
+      "session_id": "session_2026-02-09T07:50:37",
+      "start_time": "2026-02-09T07:50:37",
+      "duration_minutes": 14.983333333333333,
+      "track_count": 6,
+      "predicted_state": "comfort_seeking",
+      "predicted_confidence": 0.8232876712328767,
+      "actual_state": null,
+      "match": true,
+      "notes": "",
+      "predicted_secondary": [
+        [
+          "routine_driven",
+          0.5
+        ]
+      ],
+      "predicted_evidence": [
+        "Elevated replay rate: 50% (baseline: 23%)",
+        "Secondary: routine_driven (50%)"
+      ]
+    },
+    {
+      "session_id": "session_2026-02-09T09:05:14",
+      "start_time": "2026-02-09T09:05:14",
+      "duration_minutes": 145.51666666666668,
+      "track_count": 44,
+      "predicted_state": "zoning_out",
+      "predicted_confidence": 0.808425925925926,
+      "actual_state": null,
+      "match": true,
+      "notes": "",
+      "predicted_secondary": [],
+      "predicted_evidence": [
+        "Extended passive session (146 minutes)"
+      ]
+    }
+  ]
+}
