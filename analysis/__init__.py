@@ -2,19 +2,30 @@
 Analysis modules for behavioral pattern detection.
 
 Modules:
-- mood.py: Energy/valence trends, mood shifts, emotional extremes
+- behavior.py: Behavioral classification without API features (NEW!)
+- mood.py: Energy/valence trends (requires Spotify features)
 - habits.py: Time patterns, top artists, streaks, session analytics
 
 Usage:
-    from analysis.mood import MoodAnalyzer, load_tracks_from_json
-    from analysis.habits import HabitsAnalyzer
+    from analysis import BehaviorClassifier, HabitsAnalyzer, load_tracks_from_json
     
     tracks = load_tracks_from_json("enriched_history.json")
-    mood = MoodAnalyzer(tracks)
+    behavior = BehaviorClassifier(tracks)  # Works without Spotify features!
     habits = HabitsAnalyzer(tracks)
+    
+    # Classify behavior
+    state = behavior.classify_overall()
+    events = behavior.detect_behavioral_events()
 """
 
 from .mood import MoodAnalyzer, load_tracks_from_json
 from .habits import HabitsAnalyzer
+from .behavior import BehaviorClassifier, BehaviorState
 
-__all__ = ['MoodAnalyzer', 'HabitsAnalyzer', 'load_tracks_from_json']
+__all__ = [
+    'BehaviorClassifier',
+    'BehaviorState', 
+    'MoodAnalyzer',
+    'HabitsAnalyzer',
+    'load_tracks_from_json'
+]
