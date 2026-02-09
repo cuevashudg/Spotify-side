@@ -1,0 +1,197 @@
+"""
+Behavioral analysis report with roast mode.
+
+Uses NO Spotify audio features - pure behavior analysis.
+"""
+
+import sys
+import os
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from analysis.mood import load_tracks_from_json
+from analysis.habits import HabitsAnalyzer
+from analysis.behavior import BehaviorClassifier
+from personality.roast_engine import RoastEngine
+
+
+def print_section(title: str, emoji: str = "📊"):
+    """Print formatted section header."""
+    print("\n" + emoji + " " + title)
+    print("=" * 60)
+
+
+def behavioral_report(savage_mode: bool = False):
+    """
+    Generate behavioral analysis report.
+    
+    Args:
+        savage_mode: If True, includes roasts
+    """
+    json_file = "enriched_history.json"
+    
+    if not os.path.exists(json_file):
+        print(f"\n❌ Error: {json_file} not found")
+        print("   Run the collector first: python -m core.collector")
+        return
+    
+    # Load data
+    print("\n🧠 BEHAVIORAL ANALYSIS REPORT")
+    if savage_mode:
+        print("(Roast Mode: ENABLED 🔥)")
+    print("=" * 60)
+    print("\n📖 Loading listening history...")
+    
+    tracks = load_tracks_from_json(json_file)
+    
+    if len(tracks) < 5:
+        print("\n⚠️  Not enough data yet. Keep listening!")
+        return
+    
+    print(f"✅ Loaded {len(tracks)} tracks\n")
+    
+    # Initialize analyzers
+    habits = HabitsAnalyzer(tracks)
+    behavior = BehaviorClassifier(tracks)
+    
+    # === BEHAVIORAL CLASSIFICATION ===
+    print_section("BEHAVIORAL STATE", "🧠")
+    
+    overall_state = behavior.classify_overall()
+    print(f"\nState: {overall_state.state.upper().replace('_', ' ')}")
+    print(f"Confidence: {overall_state.confidence:.0%}")
+    print(f"Intensity: {overall_state.intensity:.2f}/1.0")
+    
+    if overall_state.evidence:
+        print("\nEvidence:")
+        for evidence in overall_state.evidence:
+            print(f"  • {evidence}")
+    
+    # Intensity & deviation
+    intensity = behavior.get_intensity_score()
+    print(f"\n📈 Listening Intensity: {intensity:.2f}/1.0")
+    
+    # Recent deviation
+    recent_tracks = tracks[-min(20, len(tracks)):]
+    deviation = behavior.get_deviation_score(recent_tracks)
+    if deviation > 0.3:
+        print(f"⚠️  Deviation from baseline: {deviation:.0%} (behavior changed recently)")
+    
+    if savage_mode and deviation > 0.5:
+        roast = RoastEngine.roast_event({
+            "type": "deviation_high",
+            "deviation": deviation
+        })
+        print(f"\n🔥 {roast}")
+    
+    # === BEHAVIORAL EVENTS ===
+    events = behavior.detect_behavioral_events()
+    
+    if events:
+        print_section("BEHAVIORAL EVENTS DETECTED", "🚨")
+        
+        # Group by type
+        event_summary = {}
+        for event in events:
+            event_type = event["type"]
+            event_summary[event_type] = event_summary.get(event_type, 0) + 1
+        
+        for event_type, count in event_summary.items():
+            readable_type = event_type.replace("_", " ").title()
+            print(f"\n  • {readable_type}: {count} occurrences")
+        
+        if savage_mode:
+            print_section("ROAST TIME", "🔥")
+            roasts = RoastEngine.roast_multiple_events(events, max_roasts=3)
+            for roast in roasts:
+                print(f"\n  💀 {roast}")
+    
+    # === LISTENING PATTERNS ===
+    print_section("LISTENING PATTERNS", "📊")
+    
+    hours = habits.get_listening_hours()
+    if "error" not in hours:
+        peak = hours['most_active_hour']
+        print(f"\n⏰ Peak Hour: {peak}:00")
+        
+        if savage_mode and (peak >= 22 or peak <= 3):
+            roast = RoastEngine.roast_event({"type": "late_night_listener"})
+            print(f"   🔥 {roast}")
+    
+    days = habits.get_day_of_week_pattern()
+    if "error" not in days:
+        print(f"📅 Most Active: {days['most_active_day']}")
+        
+        if savage_mode and days.get('is_weekend_listener'):
+            roast = RoastEngine.roast_event({"type": "weekend_only"})
+            print(f"   🔥 {roast}")
+    
+    # === TOP ARTISTS ===
+    print_section("TOP ARTISTS", "⭐")
+    
+    top_artists = habits.get_top_artists(limit=3)
+    for i, artist in enumerate(top_artists, 1):
+        print(f"\n  {i}. {artist['artist']}")
+        print(f"     {artist['play_count']} plays ({artist['percentage']}%)")
+        
+        if savage_mode and i == 1 and artist['percentage'] > 20:
+            roast = RoastEngine.roast_event({
+                "type": "artist_obsessed",
+                "artist": artist['artist'],
+                "percentage": artist['percentage']
+            })
+            print(f"     🔥 {roast}")
+    
+    # === REPEAT BEHAVIOR ===
+    print_section("REPEAT BEHAVIOR", "🔁")
+    
+    repeats = habits.get_repeat_behavior()
+    print(f"\n  Unique tracks: {repeats['total_unique_tracks']}")
+    print(f"  Repeated tracks: {repeats['repeated_tracks']} ({repeats['repeat_percentage']}%)")
+    print(f"  Diversity score: {repeats['diversity_score']}")
+    
+    if savage_mode:
+        if repeats['repeat_percentage'] > 30:
+            roast = RoastEngine.roast_event({
+                "type": "high_replay_rate",
+                "replay_pct": repeats['repeat_percentage']
+            })
+            print(f"\n  🔥 {roast}")
+        
+        # Most repeated song
+        most_repeated = repeats.get('most_repeated', [])
+        if most_repeated and most_repeated[0]['play_count'] >= 5:
+            top_repeat = most_repeated[0]
+            roast = RoastEngine.roast_event({
+                "type": "song_addiction",
+                "song": top_repeat['song'],
+                "count": top_repeat['play_count']
+            })
+            print(f"  🔥 {roast}")
+    
+    # === CLOSING ===
+    print("\n" + "=" * 60)
+    
+    if savage_mode:
+        print(RoastEngine.closing_roast())
+    else:
+        print("Analysis complete! Run with --roast for savage commentary.")
+    
+    print("=" * 60 + "\n")
+
+
+def main():
+    """Run behavioral analysis."""
+    import sys
+    
+    savage_mode = "--roast" in sys.argv or "-r" in sys.argv
+    
+    if not savage_mode:
+        print("\n💡 Tip: Add --roast flag for savage mode")
+        print("   Example: python scripts/behavioral_report.py --roast\n")
+    
+    behavioral_report(savage_mode=savage_mode)
+
+
+if __name__ == "__main__":
+    main()
