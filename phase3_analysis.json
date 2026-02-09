@@ -1,29 +1,29 @@
 {
-  "timestamp": "2026-02-09T11:34:05.030614",
+  "timestamp": "2026-02-09T11:43:59.840259",
   "total_sessions": 4,
   "metrics": {
     "total_sessions": 4,
-    "accuracy": 1.0,
+    "accuracy": 0.0,
     "confidence": {
       "values": [
-        0.5,
-        0.5,
-        0.8232876712328767,
-        0.808425925925926
+        0.65,
+        0.4629861111111111,
+        0.36243055555555553,
+        0.85
       ],
-      "mean": 0.6579283992897007,
-      "stdev": 0.18246091174606216,
-      "min": 0.5,
-      "max": 0.8232876712328767,
-      "distribution": "  50%: \u2588\u2588 (2)\n  80%: \u2588\u2588 (2)\n"
+      "mean": 0.5813541666666666,
+      "stdev": 0.21511344160645485,
+      "min": 0.36243055555555553,
+      "max": 0.85,
+      "distribution": "  30%: \u2588 (1)\n  40%: \u2588 (1)\n  60%: \u2588 (1)\n  80%: \u2588 (1)\n"
     },
     "secondary_behaviors": {
-      "frequency": 0.25,
-      "avg_count": 0.25
+      "frequency": 0.0,
+      "avg_count": 0
     },
     "state_distribution": {
+      "casual": 1,
       "routine_driven": 2,
-      "comfort_seeking": 1,
       "zoning_out": 1
     },
     "false_predictions": []
@@ -34,14 +34,14 @@
       "start_time": "2026-01-20T15:01:07",
       "duration_minutes": 1.2333333333333334,
       "track_count": 2,
-      "predicted_state": "routine_driven",
-      "predicted_confidence": 0.5,
+      "predicted_state": "casual",
+      "predicted_confidence": 0.65,
       "actual_state": null,
-      "match": true,
+      "match": false,
       "notes": "",
       "predicted_secondary": [],
       "predicted_evidence": [
-        "Regular session length"
+        "Brief listening session (1 minutes)"
       ]
     },
     {
@@ -50,9 +50,9 @@
       "duration_minutes": 39.11666666666667,
       "track_count": 15,
       "predicted_state": "routine_driven",
-      "predicted_confidence": 0.5,
+      "predicted_confidence": 0.4629861111111111,
       "actual_state": null,
-      "match": true,
+      "match": false,
       "notes": "",
       "predicted_secondary": [],
       "predicted_evidence": [
@@ -64,35 +64,29 @@
       "start_time": "2026-02-09T07:50:37",
       "duration_minutes": 14.983333333333333,
       "track_count": 6,
-      "predicted_state": "comfort_seeking",
-      "predicted_confidence": 0.8232876712328767,
+      "predicted_state": "routine_driven",
+      "predicted_confidence": 0.36243055555555553,
       "actual_state": null,
-      "match": true,
+      "match": false,
       "notes": "",
-      "predicted_secondary": [
-        [
-          "routine_driven",
-          0.5
-        ]
-      ],
+      "predicted_secondary": [],
       "predicted_evidence": [
-        "Elevated replay rate: 50% (baseline: 23%)",
-        "Secondary: routine_driven (50%)"
+        "Regular session length"
       ]
     },
     {
       "session_id": "session_2026-02-09T09:05:14",
       "start_time": "2026-02-09T09:05:14",
-      "duration_minutes": 145.51666666666668,
-      "track_count": 44,
+      "duration_minutes": 154.08333333333334,
+      "track_count": 46,
       "predicted_state": "zoning_out",
-      "predicted_confidence": 0.808425925925926,
+      "predicted_confidence": 0.85,
       "actual_state": null,
-      "match": true,
+      "match": false,
       "notes": "",
       "predicted_secondary": [],
       "predicted_evidence": [
-        "Extended passive session (146 minutes)"
+        "Extended passive session (154 minutes)"
       ]
     }
   ]

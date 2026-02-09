@@ -55,6 +55,14 @@ dmypy.json
 # Logs
 *.log
 
+# Phase 3 Tuning (Local Analysis Results)
+phase3_analysis.json
+phase3_analysis_*.json
+baseline.json
+tuned.json
+*_analysis.json
+*.phase3.json
+
 # IDE
 .vscode/
 .idea/

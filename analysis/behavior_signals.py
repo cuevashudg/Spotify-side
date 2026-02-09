@@ -214,9 +214,12 @@ class LateNightSignal(BehaviorSignal):
         if not is_late_night:
             return {}
         
-        # Score for ruminating behavior (late night + replay)
+        # TUNED: Lower base score, require higher replay to trigger ruminating
+        # Late night alone: 0.4-0.5
+        # Late night + replay boost: 0.5-0.8
         replay_factor = min(session.replay_rate / max(baseline.avg_replay_rate, 0.15), 1.0)
-        late_night_score = 0.7 * replay_factor  # Base 0.7 for late night + replay factor
+        base_late_night = 0.4 + (min(session.duration_minutes / 120, 0.1))  # 0.4-0.5 base
+        late_night_score = base_late_night + (replay_factor * 0.35)  # 0.4-0.75 range
         
         evidence = [
             f"Late-night listening ({int(avg_hour):02d}:00)",
@@ -257,11 +260,29 @@ class ReplaySignal(BehaviorSignal):
         if replay_rate <= baseline_replay:
             return {}
         
+        # TUNED: Require longer session for comfort_seeking
+        # Short sessions (< 20 min) with replay = passive/casual, not comfort_seeking
+        # Medium sessions (20-60 min) with replay = comfort_seeking
+        # Long sessions (60+ min) with replay = could be zoning out or comfort_seeking
+        
+        if session.duration_minutes < 20:
+            # Too short to diagnose comfort_seeking vs passive
+            return {}
+        
         # Calculate deviation from baseline
         replay_deviation = replay_rate - baseline_replay
         normalized_deviation = min(replay_deviation / (baseline_replay + 0.1), 1.0)
         
-        comfort_score = 0.5 + (normalized_deviation * 0.4)  # 0.5-0.9 range
+        # TUNED: Tiered scoring for better differentiation
+        # Low deviation (20-50%): 0.35-0.55
+        # Medium deviation (50-75%): 0.55-0.75
+        # High deviation (75%+): 0.75-0.90
+        if normalized_deviation < 0.3:
+            comfort_score = 0.35 + (normalized_deviation * 0.67)  # 0.35-0.55
+        elif normalized_deviation < 0.6:
+            comfort_score = 0.55 + ((normalized_deviation - 0.3) * 0.67)  # 0.55-0.75
+        else:
+            comfort_score = 0.75 + ((normalized_deviation - 0.6) * 0.375)  # 0.75-0.90
         
         evidence = [
             f"Elevated replay rate: {replay_rate:.0%} "
@@ -291,6 +312,7 @@ class SessionLengthSignal(BehaviorSignal):
     - Energized / engaged listening
     """
     
+    CASUAL_SESSION_MINUTES = 5  # Very short sessions are casual
     FOCUSED_SESSION_MINUTES = 60
     ZONING_OUT_MINUTES = 90
     
@@ -304,17 +326,31 @@ class SessionLengthSignal(BehaviorSignal):
         Evaluate session length to infer behavior.
         
         Returns:
-            Scores for 'focused', 'zoning_out', and/or 'routine_driven'
+            Scores for 'focused', 'zoning_out', 'casual', and/or 'routine_driven'
         """
         duration = session.duration_minutes
         results = {}
+        
+        # CASUAL: Very short sessions (< 5 min)
+        # Quick listening bursts, not structured behavior
+        if duration < self.CASUAL_SESSION_MINUTES:
+            casual_score = 0.65
+            results["casual"] = (
+                casual_score,
+                [f"Brief listening session ({duration:.0f} minutes)"]
+            )
+            return results  # Casual takes priority for very short sessions
         
         # FOCUSED: 60-90 minutes + low context switches + low replay
         if duration >= self.FOCUSED_SESSION_MINUTES and duration < self.ZONING_OUT_MINUTES:
             if (session.context_switches <= 1 and 
                 session.replay_rate < baseline.avg_replay_rate * 1.2):
                 
-                focus_score = min(duration / (self.FOCUSED_SESSION_MINUTES * 2), 0.9)
+                # TUNED: Scale focus score by proximity to 120 min optimal
+                # 60 min: 0.50, 90 min: 0.75, 120 min (cap): 0.85
+                optimal_focused = 120
+                focus_score = 0.5 + ((duration / optimal_focused) * 0.35)
+                focus_score = min(focus_score, 0.85)
                 results["focused"] = (
                     focus_score,
                     [f"Extended focused session ({duration:.0f} minutes)"]
@@ -331,11 +367,14 @@ class SessionLengthSignal(BehaviorSignal):
         # ROUTINE_DRIVEN: Any moderate session (fallback)
         # This creates competition with focused/zoning behaviors
         if duration < self.FOCUSED_SESSION_MINUTES:
-            routine_score = 0.5
+            # TUNED: Lower routine score to create better separation
+            # 5-30 min: 0.30-0.45, 30-60 min: 0.45-0.55
+            routine_score = 0.30 + ((min(duration, self.FOCUSED_SESSION_MINUTES) / self.FOCUSED_SESSION_MINUTES) * 0.25)
             results["routine_driven"] = (routine_score, ["Regular session length"])
         elif duration < self.ZONING_OUT_MINUTES:
             # For focused-length sessions, also score routine as secondary
-            routine_score = 0.3
+            # Lower score makes focused win more often
+            routine_score = 0.2
             results["routine_driven"] = (routine_score, ["Extended but routine"])
         
         return results if results else {}
@@ -370,8 +409,12 @@ class ContextSwitchSignal(BehaviorSignal):
         if switches <= baseline_switches:
             return {}
         
+        # TUNED: Wider range for context switches
+        # Mild elevation (1.2x baseline): 0.40
+        # Medium elevation (2x baseline): 0.60
+        # High elevation (3x+ baseline): 0.80+
         switch_factor = min(switches / max(baseline_switches * 2, 3), 1.0)
-        search_score = 0.6 + (switch_factor * 0.3)  # 0.6-0.9 range
+        search_score = 0.35 + (switch_factor * 0.45)  # 0.35-0.80 range
         
         evidence = [
             f"High context switching: {switches} "
@@ -593,7 +636,8 @@ class BehaviorClassifier:
         "searching": {"description": "High skip rate, indecisive"},
         "focused": {"description": "Long immersion, low interruption"},
         "zoning_out": {"description": "Extended passive listening"},
-        "casual": {"description": "Standard listening patterns"},
+        "casual": {"description": "Brief, unstructured listening"},
+        "routine_driven": {"description": "Standard, consistent patterns"},
         "anomaly_detected": {"description": "Unusual behavioral deviation"}
     }
     
@@ -766,7 +810,8 @@ class BehaviorClassifier:
             "searching": "restless_searcher",
             "focused": "focused_listener",
             "zoning_out": "passive_listener",
-            "casual": "routine_driven"
+            "casual": "casual_listener",
+            "routine_driven": "routine_driven"
         }
         
         overall_name = overall_state_map.get(state_name, "eclectic")
@@ -800,6 +845,8 @@ class BehaviorClassifier:
             return min(session.duration_minutes / 120, 1.0)
         elif behavior == "zoning_out":
             return min(session.duration_minutes / 180, 1.0)
+        elif behavior == "casual":
+            return min(session.duration_minutes / 10, 1.0)
         else:
             return 0.5
     

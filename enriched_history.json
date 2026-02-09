@@ -988,5 +988,35 @@
     "repeat_state": "off",
     "audio_features": null,
     "session_id": null
+  },
+  {
+    "timestamp": "2026-02-09T11:39:19.055152",
+    "track_id": "5AK6QqM8aUXXTk6oY00ZRh",
+    "song_name": "444 - Remix",
+    "artist": "Yan Block",
+    "album": "444 (Remix)",
+    "duration_ms": 299325,
+    "duration_formatted": "4:59",
+    "context_type": "playlist",
+    "context_uri": "spotify:playlist:37i9dQZF1DX10zKzsJ2jva",
+    "shuffle_state": false,
+    "repeat_state": "off",
+    "audio_features": null,
+    "session_id": null
+  },
+  {
+    "timestamp": "2026-02-09T11:44:18.572576",
+    "track_id": "7N3mR4WnEuq1MUQlxb6JWH",
+    "song_name": "Muévelo",
+    "artist": "Kali Uchis",
+    "album": "Muévelo",
+    "duration_ms": 127366,
+    "duration_formatted": "2:07",
+    "context_type": "playlist",
+    "context_uri": "spotify:playlist:37i9dQZF1DX10zKzsJ2jva",
+    "shuffle_state": false,
+    "repeat_state": "off",
+    "audio_features": null,
+    "session_id": null
   }
 ]
