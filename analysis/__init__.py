@@ -20,11 +20,30 @@ Usage:
 
 from .mood import MoodAnalyzer, load_tracks_from_json
 from .habits import HabitsAnalyzer
-from .behavior import BehaviorClassifier, BehaviorState
+from .behavior_signals import (
+    BehaviorClassifier,
+    BehaviorState,
+    BehaviorBaseline,
+    BehaviorSignal,
+    ListeningSession,
+    LateNightSignal,
+    ReplaySignal,
+    SessionLengthSignal,
+    ContextSwitchSignal,
+)
 
 __all__ = [
+    # Behavioral signals (signal-based architecture)
     'BehaviorClassifier',
-    'BehaviorState', 
+    'BehaviorState',
+    'BehaviorBaseline',
+    'BehaviorSignal',
+    'ListeningSession',
+    'LateNightSignal',
+    'ReplaySignal',
+    'SessionLengthSignal',
+    'ContextSwitchSignal',
+    # Other analysis
     'MoodAnalyzer',
     'HabitsAnalyzer',
     'load_tracks_from_json'

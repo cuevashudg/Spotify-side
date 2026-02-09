@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from analysis.mood import MoodAnalyzer, load_tracks_from_json
 from analysis.habits import HabitsAnalyzer
-from analysis.behavior import BehaviorClassifier
+from analysis.behavior_signals import BehaviorClassifier
 from personality.roast_engine import RoastEngine
 from personality import Narrator, ToneType
 
@@ -70,6 +70,14 @@ def behavioral_mode(tracks, savage_mode: bool = False):
     print(f"\nState: {overall_state.state.upper().replace('_', ' ')}")
     print(f"Confidence: {overall_state.confidence:.0%}")
     print(f"Intensity: {overall_state.intensity:.2f}/1.0")
+    
+    # Display secondary behaviors if present
+    if overall_state.secondary_behaviors:
+        secondary_str = ", ".join(
+            f"{behavior} ({score:.0%})" 
+            for behavior, score in overall_state.secondary_behaviors
+        )
+        print(f"Secondary: {secondary_str}")
     
     if overall_state.evidence:
         print("\nEvidence:")
