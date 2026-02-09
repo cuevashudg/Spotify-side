@@ -383,6 +383,90 @@ class ContextSwitchSignal(BehaviorSignal):
         }
 
 
+class ConcernSignal(BehaviorSignal):
+    """
+    Detects anomalies and behavioral deviations.
+    
+    When current session patterns diverge significantly from baseline,
+    this signals an unusual state that warrants attention/commentary.
+    """
+    
+    CONCERN_THRESHOLD = 0.6  # 60% deviation triggers concern
+    
+    def evaluate(
+        self,
+        session: "ListeningSession",
+        baseline: BehaviorBaseline,
+        all_tracks: List[Track]
+    ) -> Dict[str, Tuple[float, List[str]]]:
+        """
+        Evaluate for concerning behavioral anomalies.
+        
+        Returns:
+            Scores for 'anomaly_detected' if significant deviation found
+        """
+        results = {}
+        deviations = []
+        
+        # Check replay rate deviation
+        replay_deviation = abs(
+            session.replay_rate - baseline.avg_replay_rate
+        ) / max(baseline.avg_replay_rate, 0.1)
+        
+        if replay_deviation > 1.0:  # > 100% deviation
+            deviations.append(
+                f"Unusual replay patterns (normal: {baseline.avg_replay_rate:.0%}, "
+                f"this session: {session.replay_rate:.0%})"
+            )
+        
+        # Check session length deviation
+        duration_deviation = abs(
+            session.duration_minutes - baseline.avg_session_length_minutes
+        ) / max(baseline.avg_session_length_minutes, 10)
+        
+        if duration_deviation > 1.5:  # > 150% deviation
+            deviations.append(
+                f"Unusual session length (normal: {baseline.avg_session_length_minutes:.0f} min, "
+                f"this session: {session.duration_minutes:.0f} min)"
+            )
+        
+        # Check listening hour deviation
+        hour_deviation = abs(
+            session.avg_hour - baseline.avg_listening_hour
+        ) / 24.0
+        
+        if hour_deviation > 0.3:  # > 30% of day's span
+            deviations.append(
+                f"Listening at unusual time (normal: ~{baseline.avg_listening_hour:.0f}:00, "
+                f"this session: ~{session.avg_hour:.0f}:00)"
+            )
+        
+        # Check context switching deviation
+        switch_deviation = abs(
+            session.context_switches - baseline.avg_context_switches
+        ) / max(baseline.avg_context_switches, 1)
+        
+        if switch_deviation > 1.0:  # > 100% deviation
+            deviations.append(
+                f"Unusual skipping behavior (normal: {baseline.avg_context_switches:.1f} switches, "
+                f"this session: {session.context_switches})"
+            )
+        
+        # If multiple deviations detected, score as anomaly
+        if len(deviations) >= 2:
+            concern_score = min(0.5 + (len(deviations) * 0.15), 0.95)
+            results["anomaly_detected"] = (
+                concern_score,
+                deviations[:2]  # Top 2 deviations as evidence
+            )
+        elif len(deviations) == 1 and (replay_deviation > 1.5 or duration_deviation > 2.0):
+            # Single major deviation also triggers concern
+            concern_score = 0.65
+            results["anomaly_detected"] = (concern_score, deviations)
+        
+        return results
+
+
 # ============================================================================
 # LISTENING SESSION (ENHANCED)
 # ============================================================================
@@ -509,7 +593,8 @@ class BehaviorClassifier:
         "searching": {"description": "High skip rate, indecisive"},
         "focused": {"description": "Long immersion, low interruption"},
         "zoning_out": {"description": "Extended passive listening"},
-        "casual": {"description": "Standard listening patterns"}
+        "casual": {"description": "Standard listening patterns"},
+        "anomaly_detected": {"description": "Unusual behavioral deviation"}
     }
     
     def __init__(self, all_tracks: List[Track]):
@@ -531,6 +616,7 @@ class BehaviorClassifier:
             ReplaySignal(),
             SessionLengthSignal(),
             ContextSwitchSignal(),
+            ConcernSignal(),
         ]
     
     def classify_session(self, session_tracks: List[Track]) -> BehaviorState:

@@ -30,6 +30,7 @@ from .behavior_signals import (
     ReplaySignal,
     SessionLengthSignal,
     ContextSwitchSignal,
+    ConcernSignal,
 )
 
 __all__ = [
@@ -43,6 +44,7 @@ __all__ = [
     'ReplaySignal',
     'SessionLengthSignal',
     'ContextSwitchSignal',
+    'ConcernSignal',
     # Other analysis
     'MoodAnalyzer',
     'HabitsAnalyzer',

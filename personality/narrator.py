@@ -136,6 +136,9 @@ class Narrator:
             lines.append(get_commentary(Tone.HIGH_REPEATER, self.tone, repeat_pct))
         elif repeat_pct < 10:
             lines.append(get_commentary(Tone.LOW_REPEATER, self.tone))
+        else:
+            # Default commentary for moderate repeat rates
+            lines.append(get_commentary(Tone.MODERATE_REPEATER, self.tone, repeat_pct))
         
         # Most repeated song
         most_repeated = repeats.get('most_repeated', [])
@@ -163,6 +166,11 @@ class Narrator:
                 lines.append(get_commentary(Tone.LONG_STREAK, self.tone, current))
             elif current == 0 and longest > 0:
                 lines.append(get_commentary(Tone.BROKE_STREAK, self.tone))
+            else:
+                # Default commentary for active but short streaks
+                lines.append(get_commentary(Tone.ACTIVE_LISTENER, self.tone, current))
+        else:
+            lines.append("Streak data unavailable")
         
         return "\n".join(lines)
     
@@ -181,12 +189,17 @@ class Narrator:
                 lines.append(get_commentary(Tone.BINGE_SESSION, self.tone, longest))
             elif avg_tracks < 5:
                 lines.append(get_commentary(Tone.SHORT_SESSION, self.tone))
+            else:
+                # Default commentary for normal session patterns
+                lines.append(get_commentary(Tone.NORMAL_SESSION, self.tone, avg_tracks))
             
             total_hours = sessions.get('total_listening_time_hours', 0)
             if self.tone == ToneType.ANALYST:
                 lines.append(f"Total listening time: {total_hours} hours")
             elif self.tone == ToneType.ROAST and total_hours > 50:
                 lines.append(f"{total_hours} hours? That's like... a part-time job. Get a hobby.")
+        else:
+            lines.append("Session data unavailable")
         
         return "\n".join(lines)
     
