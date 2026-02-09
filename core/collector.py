@@ -69,7 +69,8 @@ class SpotifyCollector:
         self.client_id = os.getenv("SPOTIFY_CLIENT_ID")
         self.client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
         self.redirect_uri = "http://127.0.0.1:8888/callback"
-        self.scope = "user-read-playback-state user-read-currently-playing streaming"
+        # Note: audio features don't require special scope, but include user-library-read for future features
+        self.scope = "user-read-playback-state user-read-currently-playing streaming user-library-read"
         
         if not self.client_id or not self.client_secret:
             raise ValueError("SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET must be set in .env")
@@ -100,8 +101,7 @@ class SpotifyCollector:
     def _get_spotify_client(self) -> spotipy.Spotify:
         """Create authenticated Spotify client."""
         cache_path = ".cache"
-        if os.path.exists(cache_path):
-            os.remove(cache_path)
+        # Don't delete cache - reuse existing token when valid
         
         auth_manager = SpotifyOAuth(
             client_id=self.client_id,
