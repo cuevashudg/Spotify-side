@@ -11,6 +11,7 @@
 current_song.txt
 song_history.txt
 song_history.csv
+# Ignore enriched_history.json (user listening data)
 enriched_history.json
 weekly_report_*.txt
 *_report_*.txt
