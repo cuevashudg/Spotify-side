@@ -151,6 +151,24 @@ class Tone:
         ToneType.ROAST: lambda: "Can't even finish a full song? The TikTok generation strikes again."
     }
     
+    NORMAL_SESSION = {
+        ToneType.FRIEND: lambda tracks: f"Sessions around {tracks:.0f} tracks. Nice steady rhythm! 🎵",
+        ToneType.ANALYST: lambda tracks: f"Average session length: {tracks:.0f} tracks.",
+        ToneType.ROAST: lambda tracks: f"{tracks:.0f} tracks per session? That's kinda mid, not gonna lie."
+    }
+    
+    MODERATE_REPEATER = {
+        ToneType.FRIEND: lambda pct: f"You replay {pct}% of your tracks. Perfect balance! 🎊",
+        ToneType.ANALYST: lambda pct: f"Repeat rate: {pct}% (moderate/average).",
+        ToneType.ROAST: lambda pct: f"{pct}% repeats. You're not adventurous but not obsessive. Boring, basically."
+    }
+    
+    ACTIVE_LISTENER = {
+        ToneType.FRIEND: lambda days: f"You're listening {days} days straight! That's awesome! 🔥",
+        ToneType.ANALYST: lambda days: f"Current listening activity streak: {days} days.",
+        ToneType.ROAST: lambda days: f"{days}-day streak? Touch some grass, homie."
+    }
+    
     # === GENERAL COMMENTARY ===
     
     NO_DATA = {

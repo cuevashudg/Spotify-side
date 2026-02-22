@@ -11,6 +11,10 @@
 current_song.txt
 song_history.txt
 song_history.csv
+# Ignore enriched_history.json (user listening data)
+enriched_history.json
+weekly_report_*.txt
+*_report_*.txt
 
 # Python
 __pycache__/
@@ -19,6 +23,7 @@ __pycache__/
 *.so
 .Python
 env/
+.venv/
 venv/
 ENV/
 build/
@@ -36,6 +41,28 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Type Checking
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Logs
+*.log
+
+# Phase 3 Tuning (Local Analysis Results)
+phase3_analysis.json
+phase3_analysis_*.json
+baseline.json
+tuned.json
+*_analysis.json
+*.phase3.json
 
 # IDE
 .vscode/
