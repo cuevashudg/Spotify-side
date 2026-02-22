@@ -1,3 +1,33 @@
+# MoodScoringEngine: Accepts signals, computes averages, delegates to existing logic
+class MoodScoringEngine:
+    def __init__(self, signals: list[BehaviorSignal]):
+        self.signals = signals
+
+    def get_avg_energy_valence(self) -> tuple[float, float]:
+        energies = [s.value for s in self.signals if s.name == "energy"]
+        valences = [s.value for s in self.signals if s.name == "valence"]
+        avg_energy = statistics.mean(energies) if energies else 0.0
+        avg_valence = statistics.mean(valences) if valences else 0.0
+        return avg_energy, avg_valence
+
+    def calculate_mood(self):
+        avg_energy, avg_valence = self.get_avg_energy_valence()
+        mood = calculate_mood_score(avg_energy, avg_valence)
+        emoji = get_vibe_emoji(avg_energy, avg_valence)
+        return mood, emoji, avg_energy, avg_valence
+from core.models import BehaviorSignal
+# Helper: Convert AudioFeatures to list[BehaviorSignal]
+def audio_features_to_signals(audio_features) -> list:
+    """
+    Convert AudioFeatures object to a list of BehaviorSignal objects.
+    Only includes energy and valence for mood scoring.
+    """
+    if audio_features is None:
+        return []
+    return [
+        BehaviorSignal(name="energy", value=audio_features.energy, source="audio_features", confidence=1.0),
+        BehaviorSignal(name="valence", value=audio_features.valence, source="audio_features", confidence=1.0)
+    ]
 """
 Mood analysis module - Track energy and valence trends over time.
 
@@ -41,7 +71,7 @@ class MoodAnalyzer:
     
     def get_overall_mood(self) -> Dict:
         """
-        Calculate overall mood statistics.
+        Calculate overall mood statistics using MoodScoringEngine.
         
         Returns:
             Dictionary with average energy, valence, and mood label
@@ -51,18 +81,21 @@ class MoodAnalyzer:
                 "error": "No tracks with audio features",
                 "total_tracks": len(self.tracks)
             }
-        
-        energies = [t.audio_features.energy for t in self.tracks_with_features]
-        valences = [t.audio_features.valence for t in self.tracks_with_features]
-        tempos = [t.audio_features.tempo for t in self.tracks_with_features]
-        
-        avg_energy = statistics.mean(energies)
-        avg_valence = statistics.mean(valences)
+
+        signals = []
+        tempos = []
+        for t in self.tracks_with_features:
+            signals.extend(audio_features_to_signals(t.audio_features))
+            tempos.append(t.audio_features.tempo)
+
+        engine = MoodScoringEngine(signals)
+        avg_energy, avg_valence = engine.get_avg_energy_valence()
         avg_tempo = statistics.mean(tempos)
-        
-        mood = calculate_mood_score(avg_energy, avg_valence)
-        emoji = get_vibe_emoji(avg_energy, avg_valence)
-        
+        mood, emoji, _, _ = engine.calculate_mood()
+
+        energies = [s.value for s in signals if s.name == "energy"]
+        valences = [s.value for s in signals if s.name == "valence"]
+
         return {
             "total_tracks": len(self.tracks),
             "tracks_analyzed": len(self.tracks_with_features),
@@ -77,66 +110,60 @@ class MoodAnalyzer:
     
     def get_mood_by_hour(self) -> Dict[int, Dict]:
         """
-        Group mood statistics by hour of day.
+        Group mood statistics by hour of day using MoodScoringEngine.
         
         Returns:
             Dictionary mapping hour (0-23) to mood stats
         """
         hour_tracks = defaultdict(list)
-        
         for track in self.tracks_with_features:
             hour = track.timestamp.hour
             hour_tracks[hour].append(track)
-        
+
         hour_moods = {}
-        
         for hour, tracks in hour_tracks.items():
-            energies = [t.audio_features.energy for t in tracks]
-            valences = [t.audio_features.valence for t in tracks]
-            
-            avg_energy = statistics.mean(energies)
-            avg_valence = statistics.mean(valences)
-            
+            signals = []
+            for t in tracks:
+                signals.extend(audio_features_to_signals(t.audio_features))
+            engine = MoodScoringEngine(signals)
+            avg_energy, avg_valence = engine.get_avg_energy_valence()
+            mood, emoji, _, _ = engine.calculate_mood()
             hour_moods[hour] = {
                 "count": len(tracks),
                 "avg_energy": round(avg_energy, 3),
                 "avg_valence": round(avg_valence, 3),
-                "mood": calculate_mood_score(avg_energy, avg_valence),
-                "emoji": get_vibe_emoji(avg_energy, avg_valence)
+                "mood": mood,
+                "emoji": emoji
             }
-        
         return dict(sorted(hour_moods.items()))
     
     def get_mood_by_day(self) -> Dict[str, Dict]:
         """
-        Group mood statistics by day.
+        Group mood statistics by day using MoodScoringEngine.
         
         Returns:
             Dictionary mapping date string to mood stats
         """
         day_tracks = defaultdict(list)
-        
         for track in self.tracks_with_features:
             day = track.timestamp.strftime("%Y-%m-%d")
             day_tracks[day].append(track)
-        
+
         day_moods = {}
-        
         for day, tracks in day_tracks.items():
-            energies = [t.audio_features.energy for t in tracks]
-            valences = [t.audio_features.valence for t in tracks]
-            
-            avg_energy = statistics.mean(energies)
-            avg_valence = statistics.mean(valences)
-            
+            signals = []
+            for t in tracks:
+                signals.extend(audio_features_to_signals(t.audio_features))
+            engine = MoodScoringEngine(signals)
+            avg_energy, avg_valence = engine.get_avg_energy_valence()
+            mood, emoji, _, _ = engine.calculate_mood()
             day_moods[day] = {
                 "count": len(tracks),
                 "avg_energy": round(avg_energy, 3),
                 "avg_valence": round(avg_valence, 3),
-                "mood": calculate_mood_score(avg_energy, avg_valence),
-                "emoji": get_vibe_emoji(avg_energy, avg_valence)
+                "mood": mood,
+                "emoji": emoji
             }
-        
         return dict(sorted(day_moods.items()))
     
     def detect_mood_shifts(self, window_size: int = 5) -> List[Dict]:

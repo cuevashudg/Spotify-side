@@ -1,3 +1,12 @@
+from dataclasses import dataclass
+
+# New abstraction for behavioral signals
+@dataclass
+class BehaviorSignal:
+    name: str
+    value: float
+    source: str  # e.g., 'audio_features', 'user_event', etc.
+    confidence: float = 1.0  # Default to 1.0 if not probabilistic
 """
 Data models for Spotify behavioral tracking.
 
